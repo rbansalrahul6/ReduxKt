@@ -9,3 +9,4 @@ build/
 .externalNativeBuild
 WorkspaceSettings.xcsettings
 *.xcuserstate
+*.iml
