@@ -1,9 +1,6 @@
 package org.reduxkt
 
-import org.reduxkt.types.Action
-import org.reduxkt.types.Reducer
-import org.reduxkt.types.Store
-import org.reduxkt.types.Subscription
+import org.reduxkt.types.*
 
 abstract class SimpleStore<State>(
     private val initialState: State,
@@ -12,24 +9,19 @@ abstract class SimpleStore<State>(
     private var currState: State = initialState
     private val subscriptions = arrayListOf<Subscription<State>>()
 
-    override fun getState() = currState
-
-    override fun dispatch(action: Action) {
+    private fun dispatch(action: Action) {
         val newState = applyReducers(currState, action)
         if (newState == currState) {
             return
         }
         currState = newState
-        subscriptions.forEach { it(currState) }
+        subscriptions.forEach { it(currState, ::dispatch) }
     }
 
-    override fun subscribe(subscription: Subscription<State>) {
+    override fun subscribe(subscription: Subscription<State>): Unsubscribe {
         subscriptions.add(subscription)
-        subscription(currState) // notify curr state
-    }
-
-    override fun unsubscribe(subscription: Subscription<State>) {
-        subscriptions.remove(subscription)
+        subscription(currState, ::dispatch) // notify curr state
+        return { subscriptions.remove(subscription) }
     }
 
     private fun applyReducers(current: State, action: Action): State {

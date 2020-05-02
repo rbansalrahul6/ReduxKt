@@ -1,10 +1,9 @@
 package org.reduxkt.types
 
-typealias Subscription<State> = (State) -> Unit
+typealias Dispatch = (Action) -> Unit
+typealias Subscription<State> = (State, Dispatch) -> Unit
+typealias Unsubscribe = () -> Unit
 
 interface Store<State> {
-    fun getState(): State
-    fun dispatch(action: Action)
-    fun subscribe(subscription: Subscription<State>)
-    fun unsubscribe(subscription: Subscription<State>)
+    fun subscribe(subscription: Subscription<State>): Unsubscribe
 }
